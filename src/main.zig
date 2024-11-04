@@ -6,6 +6,12 @@ const data = @import("data.zig");
 const debug = if (builtin.mode == .Debug) true else false;
 
 pub fn main() !void {
+    if (debug) {
+        std.log.info("target - {s}-{s}-{s}", .{ @tagName(builtin.cpu.arch), @tagName(builtin.os.tag), @tagName(builtin.target.abi) });
+        std.log.info("mode - {s}", .{@tagName(builtin.mode)});
+        std.log.info("zig version - {s}", .{builtin.zig_version_string});
+    }
+
     const allocator = std.heap.page_allocator;
 
     const args = try std.process.argsAlloc(allocator);
