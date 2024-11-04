@@ -7,9 +7,9 @@ const debug = if (builtin.mode == .Debug) true else false;
 
 pub fn main() !void {
     if (debug) {
-        std.log.info("target - {s}-{s}-{s}", .{ @tagName(builtin.cpu.arch), @tagName(builtin.os.tag), @tagName(builtin.target.abi) });
-        std.log.info("mode - {s}", .{@tagName(builtin.mode)});
-        std.log.info("zig version - {s}", .{builtin.zig_version_string});
+        std.log.debug("target - {s}-{s}-{s}", .{ @tagName(builtin.cpu.arch), @tagName(builtin.os.tag), @tagName(builtin.target.abi) });
+        std.log.debug("mode - {s}", .{@tagName(builtin.mode)});
+        std.log.debug("zig version - {s}", .{builtin.zig_version_string});
     }
 
     const allocator = std.heap.page_allocator;
@@ -47,7 +47,7 @@ pub fn main() !void {
     defer allocator.free(appdata);
 
     if (debug) {
-        std.log.info("app: {s}, operation: {s}", .{ app, operation });
-        std.log.info("executable: {s}, executable_type: {s}", .{ executable, executable_type });
+        std.log.debug("app: {s}, operation: {s}", .{ app, operation });
+        std.log.debug("executable: {s}, executable_type: {s}", .{ executable, executable_type });
     }
 }
