@@ -3,11 +3,7 @@ const builtin = @import("builtin");
 
 const data = @import("data.zig");
 
-const debug =
-    if (builtin.mode == .ReleaseSafe or builtin.mode == .ReleaseSmall or builtin.mode == .ReleaseFast)
-    false
-else
-    true;
+const debug = if (builtin.mode == .Debug) true else false;
 
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
