@@ -1,6 +1,13 @@
 const std = @import("std");
+const builtin = @import("builtin");
 
 const data = @import("data.zig");
+
+const debug =
+    if (builtin.mode == .ReleaseSafe or builtin.mode == .ReleaseSmall or builtin.mode == .ReleaseFast)
+    false
+else
+    true;
 
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
@@ -37,6 +44,8 @@ pub fn main() !void {
     const appdata = try data.get_appdata_dir(allocator);
     defer allocator.free(appdata);
 
-    std.log.info("app: {s}, operation: {s}", .{ app, operation });
-    std.log.info("executable: {s}, executable_type: {s}", .{ executable, executable_type });
+    if (debug) {
+        std.log.info("app: {s}, operation: {s}", .{ app, operation });
+        std.log.info("executable: {s}, executable_type: {s}", .{ executable, executable_type });
+    }
 }
