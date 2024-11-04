@@ -1,5 +1,7 @@
 const std = @import("std");
 
+const data = @import("data.zig");
+
 pub fn main() !void {
     const allocator = std.heap.page_allocator;
 
@@ -15,6 +17,26 @@ pub fn main() !void {
         return;
     }
 
-    // const app = args[1];
-    // const operation = args[2];
+    const app = args[1];
+    const operation = args[2];
+
+    var executable: []const u8 = "";
+    var executable_type: []const u8 = "";
+
+    if (std.mem.eql(u8, app, "player")) {
+        executable = "RobloxPlayerBeta.exe";
+        executable_type = "WindowsPlayer";
+    } else if (std.mem.eql(u8, app, "studio")) {
+        executable = "RobloxStudioBeta.exe";
+        executable_type = "WindowsStudio64";
+    } else {
+        std.debug.print("Invalid app value. Please provide 'player' or 'studio'.\n", .{});
+        return;
+    }
+
+    const appdata = try data.get_appdata_dir(allocator);
+    defer allocator.free(appdata);
+
+    std.log.info("app: {s}, operation: {s}", .{ app, operation });
+    std.log.info("executable: {s}, executable_type: {s}", .{ executable, executable_type });
 }
