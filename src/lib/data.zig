@@ -24,5 +24,5 @@ pub fn get_appdata_dir(allocator: std.mem.Allocator) ![]const u8 {
 test "get_appdata_dir memory leak test" {
     const allocator = std.testing.allocator;
     const appdata = try get_appdata_dir(allocator);
-    allocator.free(appdata);
+    defer allocator.free(appdata);
 }
