@@ -1,7 +1,8 @@
 const std = @import("std");
 const builtin = @import("builtin");
 
-const data = @import("data.zig");
+const data = @import("lib/data.zig");
+const mirror = @import("lib/rbx/mirror.zig");
 
 const debug = if (builtin.mode == .Debug) true else false;
 
