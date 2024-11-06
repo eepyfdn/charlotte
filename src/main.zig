@@ -2,16 +2,13 @@ const std = @import("std");
 const builtin = @import("builtin");
 
 const data = @import("lib/data.zig");
+const errors = @import("lib/error.zig").CharlotteError;
 const mirror = @import("lib/rbx/mirror.zig");
 
-const debug = if (builtin.mode == .Debug) true else false;
-
 pub fn main() !void {
-    if (debug) {
-        std.log.debug("target - {s}-{s}-{s}", .{ @tagName(builtin.cpu.arch), @tagName(builtin.os.tag), @tagName(builtin.target.abi) });
-        std.log.debug("mode - {s}", .{@tagName(builtin.mode)});
-        std.log.debug("zig version - {s}", .{builtin.zig_version_string});
-    }
+    std.log.debug("target - {s}-{s}-{s}", .{ @tagName(builtin.cpu.arch), @tagName(builtin.os.tag), @tagName(builtin.target.abi) });
+    std.log.debug("mode - {s}", .{@tagName(builtin.mode)});
+    std.log.debug("zig version - {s}", .{builtin.zig_version_string});
 
     const allocator = std.heap.page_allocator;
 
@@ -47,8 +44,17 @@ pub fn main() !void {
     const appdata = try data.get_appdata_dir(allocator);
     defer allocator.free(appdata);
 
-    if (debug) {
-        std.log.debug("app: {s}, operation: {s}", .{ app, operation });
-        std.log.debug("executable: {s}, executable_type: {s}", .{ executable, executable_type });
-    }
+    std.log.debug("app: {s}, operation: {s}", .{ app, operation });
+    std.log.debug("executable: {s}, executable_type: {s}", .{ executable, executable_type });
+
+    const lowest_latency_mirror = mirror.get_lowest_latency_mirror(allocator) catch |err| {
+        switch (err) {
+            errors.mirror.NoMirrorsAvailable => {
+                std.debug.print("No mirrors available! Check your internet connection or connection to Roblox's servers.\n", .{});
+            },
+        }
+        return;
+    };
+
+    std.log.debug("low latency mirror: {s}\n", .{lowest_latency_mirror});
 }
