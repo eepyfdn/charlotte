@@ -8,6 +8,12 @@ const endpoints = [_][]const u8{
     "https://s3.amazonaws.com/setup.roblox.com",
 };
 
+const LatencyResult = struct {
+    allocator: std.mem.Allocator,
+    endpoint: []const u8,
+    latency: i64,
+};
+
 fn get_latency(allocator: std.mem.Allocator, endpoint: []const u8) !i64 {
     const start_time = std.time.milliTimestamp();
     var client = std.http.Client{ .allocator = allocator };
@@ -21,22 +27,31 @@ fn get_latency(allocator: std.mem.Allocator, endpoint: []const u8) !i64 {
     return std.time.milliTimestamp() - start_time;
 }
 
-test "get_latency" {
-    const allocator = std.testing.allocator;
-    _ = try get_latency(allocator, "https://roblox.com"); // If Roblox's down, so are we!
+fn latencyWorker(result: *LatencyResult) void {
+    result.latency = get_latency(result.allocator, result.endpoint) catch std.math.maxInt(i64);
 }
 
 pub fn get_lowest_latency_mirror(allocator: std.mem.Allocator) ![]const u8 {
+    var results: [endpoints.len]LatencyResult = undefined;
+    var threads: [endpoints.len]std.Thread = undefined;
+
+    for (endpoints, 0..) |endpoint, i| {
+        results[i] = LatencyResult{ .allocator = allocator, .endpoint = endpoint, .latency = std.math.maxInt(i64) };
+        std.log.debug("endpoint: {s}", .{endpoint});
+        threads[i] = try std.Thread.spawn(.{}, latencyWorker, .{&results[i]});
+    }
+
+    for (threads) |thread| {
+        thread.join();
+    }
+
     var lowest_latency: i64 = std.math.maxInt(i64);
     var lowest_latency_endpoint: []const u8 = "";
 
-    for (endpoints) |endpoint| {
-        const latency = get_latency(allocator, endpoint) catch {
-            continue;
-        };
-        if (latency < lowest_latency) {
-            lowest_latency = latency;
-            lowest_latency_endpoint = endpoint;
+    for (results) |result| {
+        if (result.latency < lowest_latency) {
+            lowest_latency = result.latency;
+            lowest_latency_endpoint = result.endpoint;
         }
     }
 

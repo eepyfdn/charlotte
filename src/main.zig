@@ -47,14 +47,17 @@ pub fn main() !void {
     std.log.debug("app: {s}, operation: {s}", .{ app, operation });
     std.log.debug("executable: {s}, executable_type: {s}", .{ executable, executable_type });
 
-    const lowest_latency_mirror = mirror.get_lowest_latency_mirror(allocator) catch |err| {
+    const mirror_selected = mirror.get_lowest_latency_mirror(allocator) catch |err| {
         switch (err) {
             errors.mirror.NoMirrorsAvailable => {
                 std.debug.print("No mirrors available! Check your internet connection or connection to Roblox's servers.\n", .{});
+            },
+            else => {
+                std.debug.print("An error occurred while fetching the lowest latency mirror: {?}\n", .{err});
             },
         }
         return;
     };
 
-    std.log.debug("low latency mirror: {s}\n", .{lowest_latency_mirror});
+    std.log.debug("lowest latency mirror: {s}", .{mirror_selected});
 }
