@@ -37,7 +37,6 @@ pub fn get_lowest_latency_mirror(allocator: std.mem.Allocator) ![]const u8 {
 
     for (endpoints, 0..) |endpoint, i| {
         results[i] = LatencyResult{ .allocator = allocator, .endpoint = endpoint, .latency = std.math.maxInt(i64) };
-        std.log.debug("endpoint: {s}", .{endpoint});
         threads[i] = try std.Thread.spawn(.{}, latencyWorker, .{&results[i]});
     }
 
